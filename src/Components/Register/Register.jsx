@@ -24,7 +24,7 @@ const Register = () => {
   };
 
   const registerUser = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault(); 
 
     if (formData.password !== formData.confirmPassword) {
       toast.error("Password and confirm password do not match");
@@ -38,7 +38,11 @@ const Register = () => {
         email: formData.email,
         password: formData.password,
       };
-      const res = await axios.post(`${API_BASE_URL}/user/register`, data);
+      const res = await axios.post(`${API_BASE_URL}/user/register`, data,{
+        headers: {
+            'Content-Type': 'application/json',
+          },
+      });
 
       if (res.status === 201) {
         toast.success("User registered successfully");

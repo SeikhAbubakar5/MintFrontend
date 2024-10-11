@@ -1,19 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, TextField, Button } from "@mui/material";
-import toast from "react-hot-toast";
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast"; // Importing the Toaster from react-hot-toast
 import { API_BASE_URL } from "../../config";
 
-const Register = () => {
+const Login = () => {
   const navigate = useNavigate();
-
-  // State
   const [formData, setFormData] = useState({
-    username: "",
     email: "",
     password: "",
-    confirmPassword: "",
   });
 
   const handleInputUpdate = (e) => {
@@ -23,40 +19,35 @@ const Register = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const registerUser = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+  const loginUser = async (e) => {
+    e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Password and confirm password do not match");
-      return;
-    }
-
-    // Register user
     try {
       const data = {
-        username: formData.username,
         email: formData.email,
         password: formData.password,
       };
-      const res = await axios.post(`${API_BASE_URL}/user/register`, data);
 
-      if (res.status === 201) {
-        toast.success("User registered successfully");
-        navigate("/login");
+      let res = await axios.post(`${API_BASE_URL}/user/login`, data);
+
+      if (res.status === 200) {
+        toast.success("User logged in successfully");
+        localStorage.setItem("userId", res?.data?.userId); // Store userId in local storage
+        navigate("/");
       }
     } catch (error) {
       if (error?.response?.data?.message) {
         toast.error(error.response.data.message);
       } else {
-        toast.error("An error occurred while registering user");
+        toast.error("An error occurred while logging in");
       }
-      console.error("Error:", error);
     }
   };
 
   return (
     <>
-      <form onSubmit={registerUser}>
+      <Toaster />
+      <form onSubmit={loginUser}>
         <Box
           maxWidth={450}
           display="flex"
@@ -75,17 +66,9 @@ const Register = () => {
             padding={3}
             textAlign="center"
           >
-            Register
+            Login
           </Typography>
-          <TextField
-            placeholder="Username"
-            value={formData.username}
-            onChange={handleInputUpdate}
-            name="username"
-            margin="normal"
-            type={"text"}
-            required
-          />
+
           <TextField
             placeholder="Email"
             value={formData.email}
@@ -104,15 +87,6 @@ const Register = () => {
             required
             onChange={handleInputUpdate}
           />
-          <TextField
-            placeholder="Confirm Password"
-            value={formData.confirmPassword}
-            name="confirmPassword"
-            margin="normal"
-            type={"password"}
-            required
-            onChange={handleInputUpdate}
-          />
 
           <Button
             type="submit"
@@ -123,10 +97,10 @@ const Register = () => {
             Submit
           </Button>
           <Button
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/register")}
             sx={{ borderRadius: 3, marginTop: 3 }}
           >
-            Already Registered? Please Login
+            Not a user? Please Register
           </Button>
         </Box>
       </form>
@@ -134,4 +108,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;
